@@ -21,32 +21,36 @@ SET(CMAKE_COMMAND /usr/bin/cmake)
 # This is the equivalent to a #define. You can use it in the CMakeLists.txt file
 SET(AMIGAOS4 1)
 
+SET(SDK /your/sdk/path)
+SET(XGCC_BIN /home/USER/projects/adtools_be/bin)
+SET(C_LIB newlib)
+
 ## rjd324: Do I need this (search for PKG_CONFIG_LIBDIR in this file)
-#SET(CMAKE_MODULE_PATH /home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/newlib/)
+#SET(CMAKE_MODULE_PATH ${SDK}/local/${C_LIB}/)
 
 SET_PROPERTY(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
 
 # specify the cross compiler
-SET(CMAKE_C_COMPILER   /home/rjd/projects/adtools_be/bin/ppc-amigaos-gcc)
-SET(CMAKE_CXX_COMPILER   /home/rjd/projects/adtools_be/bin/ppc-amigaos-g++)
-SET(CMAKE_CXX_FLAGS "-mcrt=newlib -I/home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/common/include -Ofast -mstrict-align")
-SET(CMAKE_C_FLAGS "-mcrt=newlib -I/home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/common/include -Ofast -mstrict-align")
-SET(CMAKE_LD_FLAGS "-mcrt=newlib -athread=native -lpthread")
+SET(CMAKE_C_COMPILER   ${XGCC_BIN}//ppc-amigaos-gcc)
+SET(CMAKE_CXX_COMPILER   ${XGCC_BIN}//ppc-amigaos-g++)
+SET(CMAKE_CXX_FLAGS "-mcrt=${C_LIB} -I${SDK}/local/common/include -Ofast -mstrict-align")
+SET(CMAKE_C_FLAGS "-mcrt=${C_LIB} -I${SDK}/local/common/include -Ofast -mstrict-align")
+SET(CMAKE_LD_FLAGS "-mcrt=${C_LIB} -athread=native -lpthread")
 
-## don't use-dyn: SET(CMAKE_EXE_LINKER_FLAGS "-mcrt=newlib -use-dynld -lpthread -Wl,--no-undefined -athread=native")
-SET(CMAKE_EXE_LINKER_FLAGS "-mcrt=newlib -lpthread -Wl,--no-undefined -athread=native")
+## don't use-dyn: SET(CMAKE_EXE_LINKER_FLAGS "-mcrt=${C_LIB} -use-dynld -lpthread -Wl,--no-undefined -athread=native")
+SET(CMAKE_EXE_LINKER_FLAGS "-mcrt=${C_LIB} -lpthread -Wl,--no-undefined -athread=native")
 
-SET(CMAKE_SHARED_LINKER_FLAGS "-mcrt=newlib -lpthread -use-dynld -Wl,--no-undefined -athread=native ")
-SET(CMAKE_INSTALL_PREFIX /home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/newlib)
+SET(CMAKE_SHARED_LINKER_FLAGS "-mcrt=${C_LIB} -lpthread -use-dynld -Wl,--no-undefined -athread=native ")
+SET(CMAKE_INSTALL_PREFIX ${SDK}/local/${C_LIB})
 SET(CMAKE_MODULE_LINKER_FLAGS -shared)
 SET(CMAKE_SHARED_LINKER_FLAGS -shared)
-SET(CMAKE_CXX_COMPILER /home/rjd/projects/adtools_be/bin/ppc-amigaos-g++)
+SET(CMAKE_CXX_COMPILER ${XGCC_BIN}//ppc-amigaos-g++)
 
 # rjd342: Do we need this? The compiler already should know where to search:
-include_directories(SYSTEM /home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/common/include)
+include_directories(SYSTEM ${SDK}/local/common/include)
 
 # where is the target environment 
-SET(CMAKE_FIND_ROOT_PATH  /home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/newlib)
+SET(CMAKE_FIND_ROOT_PATH  ${SDK}/local/${C_LIB})
 
 # search for programs in the build host directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -70,7 +74,7 @@ SET(CMAKE_C_IMPLICIT_LINK_LIBRARIES "stdc++")
 #ADD_LIBRARY(imp_stdc STATIC IMPORTED)
 # point the imported target at the real file
 #set_property(TARGET imp_stdc PROPERTY
-#	IMPORTED_LOCATION /home/rjd/projects/adtools_be/local/amiga/ppc-amigaos/lib/newlib/libsdc++.a)
+#	IMPORTED_LOCATION /home/USER/projects/adtools_be/local/amiga/ppc-amigaos/lib/${C_LIB}/libsdc++.a)
 
 #SET( EXTRA_LIBS libgcc_eh.a )
 #SET( LIBS ${LIBS} libgcc_eh.a )
@@ -79,15 +83,15 @@ SET(CMAKE_C_IMPLICIT_LINK_LIBRARIES "stdc++")
 #ADD_LIBRARY(imp_gcc_eh STATIC IMPORTED)
 # point the imported target at the real file
 #set_property(TARGET imp_gcc_eh PROPERTY
-#	IMPORTED_LOCATION /home/rjd/projects/adtools_be/local/amiga/lib/gcc/ppc-amigaos/4.9.1/libgcc_eh.a)
+#	IMPORTED_LOCATION /home/USER/projects/adtools_be/local/amiga/lib/gcc/ppc-amigaos/4.9.1/libgcc_eh.a)
 
-### list(APPEND CMAKE_MODULE_PATH /home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/lib)
+### list(APPEND CMAKE_MODULE_PATH ${SDK}/local/lib)
 
 # rjd324: IMPORTANT!
 #
 # When cross compiling / porting things that use CMAKE, functions like PKG_CHECK_MODULES() will use pkg-config on the BUILD machine (AKA your dev/cross-compiling machine). We DO NOT WANT to use any .pc files that are on the BUILD machine. We want to use the .pc files that are installed in our SDK folder only. Therefore:
 #
 ### You should always set something like:
-# export PKG_CONFIG_LIBDIR=/home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/newlib/lib/pkgconfig/
+# export PKG_CONFIG_LIBDIR=${SDK}/local/${C_LIB}/lib/pkgconfig/
 #
 # Or, PKG_CONFIG_LIBDIR=/loc/to/pkgconfig cmake --toolchain=/loc/to/cmake.ppc-amigaos 
