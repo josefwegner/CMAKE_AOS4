@@ -7,3 +7,5 @@
 # Disclaimer: I am not well versed in CMAKE. I have spent years
 # fighting with it. To try and become friends, here is a toolchain
 # that was originally provided by AFXGROUP. See cmake.ppc-amigaos
+#
+# I welcome ANYONE to create a PR and improve it.
