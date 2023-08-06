@@ -49,3 +49,6 @@ else ()
 endif ()
 ```
 This essentially bypasses the actual finding of the library and tell CMAKE: When you finally link the executable, just listen to me and link it with this.
+
+## Installation
+You should ensure that you set -DCMAKE_INSTALL_PREFIX=VAL to some desired location. The last thing you want to do is to install a cross-compiled project into your existing BUILD machine's environment.
