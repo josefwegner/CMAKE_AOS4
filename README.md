@@ -12,25 +12,25 @@ I also find it frustrating how every educational video you see of CMAKE is not b
 
 ## My findings regarding the seeking of packages
 ### pkg-config
-It seems that CMAKE has different methods of retrieving packages. One of the common CMAKE modules is named pkg-config. Under the hood, it uses... pkg-config, of course. I have a gripe with pkg-config to begin with, since not every package is supplied with a .pc file - especially those packages uploaded to OS4Depot.net.
+It seems that CMAKE has different methods of retrieving packages. One of the common CMAKE modules is named pkg-config. Under the hood, it uses... *pkg-config*, of course. I have a gripe with pkg-config to begin with, since not every package is supplied with a .pc file - especially those packages uploaded to OS4Depot.net.
 
 In any case, we must ensure that CMAKE/pkg-config knows not to search for .pc files belonging to the BUILD machine! We only want .pc files to be searched within the relevant SDK directory used on the BUILD machine. For instance, when you install a library from OS4Depot.net, it may very well comes with a .pc file. When you install the library into your BUILD machines SDK location, the library, its headers and the .pc file end up installed. Fine. As an example, you may left with something like:
 
-/sdk/local/newlib/lib/libfoo.a
-/sdk/local/newlib/lib/pkgconfig/foo.pc
-/sdk/local/clib2/lib/libfoo.a
-/sdk/local/clib2/lib/pkgconfig/foo.pc
-/sdk/local/common/include/foo.h
+- /sdk/local/newlib/lib/libfoo.a
+- /sdk/local/newlib/lib/pkgconfig/foo.pc
+- /sdk/local/clib2/lib/libfoo.a
+- /sdk/local/clib2/lib/pkgconfig/foo.pc
+- /sdk/local/common/include/foo.h
 
 Hopefully, the contents of the .pc file is not a hardcoded path to the library creator's/porter's location. This is another reason why it is useful to have a symbolic link /sdk/ that points to your actual SDK installation directory. On the AmigaOne machine, SDK: is a logical assign to the SDK folder and this is therefore analogous.
 
 Anyway, issues arise when libfoo also exists on your BUILD machine. You might have something like this on a linux machine:
 
-/usr/lib/libfoo.a
-/usr/include/foo.h
-/usr/share/pkgconfig/foo.pc
+- /usr/lib/libfoo.a
+- /usr/include/foo.h
+- /usr/share/pkgconfig/foo.pc
 
-pkg-config will implicitly search in a list of default locations on your BUILD machine first which is not an abnormal thing for a program to do. There are also a number of suggestions that changing the environment variable PKG_CONFIG_PATH is all that is needed to get pkg-config to look in the correct locations. This is wrong. PKG_CONFIG_PATH is used in addition to the default locations, though, from the MAN page it does look like the paths listed in PKG_CONFIG_PATH are searched first. But, in order to eliminate the BUILD machine's files at all, it is best to set PKG_CONFIG_LIBDIR entirely. This will replace the default locations completely.
+pkg-config will implicitly search in a list of default locations on your BUILD machine first which is not an abnormal thing for a program to do. There are also a number of suggestions that changing the environment variable ***PKG_CONFIG_PATH*** is all that is needed to get pkg-config to look in the correct locations. This is wrong. ***PKG_CONFIG_PATH*** is used in addition to the default locations, though, from the MAN page it does look like the paths listed in ***PKG_CONFIG_PATH*** are searched first. But, in order to eliminate the BUILD machine's files at all, it is best to set ***PKG_CONFIG_LIBDIR*** entirely. This will replace the default locations completely.
 
 Therefore, when I use CMAKE for a project for which I want to cross-compile / port I will always set PKG_CONFIG_PATH to something like /sdk/local/newlib/lib/pkgconfig/
 
@@ -38,12 +38,14 @@ Therefore, when I use CMAKE for a project for which I want to cross-compile / po
 The CMAKE pkg-config module is not the only way to find libraries though. Actually, from what I have read, I think it is discouraged since not everything comes with a .pc file.
 
 ### Finding / linking libraries when generating for AmigaOS4
-Often, the CMakeLists.txt file needs to be hacked. Either there is no corresponding .pc file, so PKG_CHECK_MODULES cannot be used, or, there is no corresponding .cmake file for the find_module function. I believe there is no getting around this (let me know if there is an easier way; of course, one can write their own .pc / .cmake file!). Therefore, my general approach is to add something like:
+Often, the CMakeLists.txt file needs to be hacked. Either there is no corresponding .pc file, so ***PKG_CHECK_MODULES*** cannot be used, or, there is no corresponding .cmake file for the ***find_module*** function. I believe there is no getting around this (let me know if there is an easier way; of course, one can write their own .pc / .cmake file!). Therefore, my general approach is to add something like:
 
 ```
+# Remember that AMIGAOS4 is a variable that is set in our cmake.ppc-amigaos toolchain file
 if ( AMIGAOS4 )
-  target_link_libraries(PROGRAM, "-lfoo")
+  target_link_libraries(${PROGRAM}, "-lfoo")
 else ()
   find_package(foo x.y REQUIRED)
 endif ()
 ```
+This essentially bypasses the actual finding of the library and tell CMAKE: When you finally link the executable, just listen to me and link it with this.
