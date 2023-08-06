@@ -34,7 +34,16 @@ pkg-config will implicitly search in a list of default locations on your BUILD m
 
 Therefore, when I use CMAKE for a project for which I want to cross-compile / port I will always set PKG_CONFIG_PATH to something like /sdk/local/newlib/lib/pkgconfig/
 
-### find-module
+### find_module
 The CMAKE pkg-config module is not the only way to find libraries though. Actually, from what I have read, I think it is discouraged since not everything comes with a .pc file.
 
-### TODO: Write more things
+### Finding / linking libraries when generating for AmigaOS4
+Often, the CMakeLists.txt file needs to be hacked. Either there is no corresponding .pc file, so PKG_CHECK_MODULES cannot be used, or, there is no corresponding .cmake file for the find_module function. I believe there is no getting around this (let me know if there is an easier way; of course, one can write their own .pc / .cmake file!). Therefore, my general approach is to add something like:
+
+```
+if ( AMIGAOS4 )
+  target_link_libraries(PROGRAM, "-lfoo")
+else ()
+  find_package(foo x.y REQUIRED)
+endif ()
+```
