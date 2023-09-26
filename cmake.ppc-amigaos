@@ -32,7 +32,7 @@ SET(CMAKE_COMMAND /usr/bin/cmake)
 #
 # TODO: Can you just write (in this toolchain file) set(ENV{PKG_CONFIG_LIBDIR} "") instead of exporting or setting during invocation of CMAKE
 # This is used to search for .cmake modules files IN ADDTION to the default CMAKE locations:
-SET(CMAKE_MODULE_PATH /home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/${C_LIB}/)
+list(APPEND CMAKE_MODULE_PATH /home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/${C_LIB}/)
 # TODO : Update this so that .cmake modules are NEVER taken from the BUILD machine. I.e. that default paths are removed!
 # A useful cmake variable which can be used downstream to check if we are using THIS toolchain
 SET(AMIGAOS4 1)
