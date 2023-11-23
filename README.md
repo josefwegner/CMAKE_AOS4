@@ -32,7 +32,10 @@ Anyway, issues arise when libfoo also exists on your BUILD machine. You might ha
 
 pkg-config will implicitly search in a list of default locations on your BUILD machine first which is not an abnormal thing for a program to do. There are also a number of suggestions that changing the environment variable ***PKG_CONFIG_PATH*** is all that is needed to get pkg-config to look in the correct locations. This is wrong. ***PKG_CONFIG_PATH*** is used in addition to the default locations, though, from the MAN page it does look like the paths listed in ***PKG_CONFIG_PATH*** are searched first. But, in order to eliminate the BUILD machine's files at all, it is best to set ***PKG_CONFIG_LIBDIR*** entirely. This will replace the default locations completely.
 
-Therefore, when I use CMAKE for a project for which I want to cross-compile / port I will always set PKG_CONFIG_PATH to something like /sdk/local/newlib/lib/pkgconfig/
+Therefore, when I use CMAKE for a project for which I want to cross-compile / port I will always set PKG_CONFIG_PATH to something like /sdk/local/newlib/lib/pkgconfig/. That is, I will export the environment variable named "PKG_CONFIG_LIBDIR" (TODO: But, earlier I said PKG_CONFIG_PATH - why?).
+
+### DEBUGGING
+Pass --debug-find to CMAKE to get CMAKE to tell you which location(s) things were found!
 
 ### find_module
 The CMAKE pkg-config module is not the only way to find libraries though. Actually, from what I have read, I think it is discouraged since not everything comes with a .pc file.
