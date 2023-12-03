@@ -10,6 +10,27 @@ Because I never saw an issue with tools such as AUTOMAKE etc and find them a lot
 
 I also find it frustrating how every educational video you see of CMAKE is not based on the need to port things, though, it is probably my lack of motivation and/or searching. It seems to me that the assumption is always that you are generating a project for the same target as your build machine! This raises big issues when it comes to finding packages (see below).
 
+## Different types of variables and precedence (Normal / Cache / Environment)
+CMAKE will search the *function* for a set VARIABLE first. If not found, it falls back to the *directory* scope. If not found, it falls back to the *cache*.
+
+### Normal
+```
+set(<variable> <value>... [PARENT_SCOPE])
+```
+For the current *function* or *directory* scope.
+
+### Cache (AKA: Cache Entry)
+```
+set(<variable> <value>... CACHE <type> <docstring> [FORCE])
+```
+You can set these using -D<var>=<value> during the command line invocation 
+
+### Environment
+```
+set(ENV{<variable>} [<value>])
+```
+For *this* CMAKE invocation, then ```$ENV{<variable>}``` will return <value>, above. But, once CMAKE is finished, the value of the variable in the environment is maintained. CMAKE does not affect the value of the environment variable.
+
 ## My findings regarding the seeking of packages
 ### pkg-config
 It seems that CMAKE has different methods of retrieving packages. One of the common CMAKE modules is named pkg-config. Under the hood, it uses... *pkg-config*, of course. I have a gripe with pkg-config to begin with, since not every package is supplied with a .pc file - especially those packages uploaded to OS4Depot.net.
@@ -30,12 +51,10 @@ Anyway, issues arise when libfoo also exists on your BUILD machine. You might ha
 - /usr/include/foo.h
 - /usr/share/pkgconfig/foo.pc
 
-pkg-config will implicitly search in a list of default locations on your BUILD machine first which is not an abnormal thing for a program to do. There are also a number of suggestions that changing the environment variable ***PKG_CONFIG_PATH*** is all that is needed to get pkg-config to look in the correct locations. This is wrong. ***PKG_CONFIG_PATH*** is used in addition to the default locations, though, from the MAN page it does look like the paths listed in ***PKG_CONFIG_PATH*** are searched first. But, in order to eliminate the BUILD machine's files at all, it is best to set ***PKG_CONFIG_LIBDIR*** entirely. This will replace the default locations completely.
+pkg-config will implicitly search in a list of default locations on your BUILD machine and when cross-compiling for AMIGA we do *not* want this to happen. It causes endless confusion. The solution is to set "CMAKE_FIND_ROOT_PATH" to the location of the directory containing the various .pc files. See section below about getting CMAKE to write out which paths it is searching for.
 
-Therefore, when I use CMAKE for a project for which I want to cross-compile / port I will always set PKG_CONFIG_PATH to something like /sdk/local/newlib/lib/pkgconfig/. That is, I will export the environment variable named "PKG_CONFIG_LIBDIR" (TODO: But, earlier I said PKG_CONFIG_PATH - why?).
-
-### DEBUGGING
-Pass --debug-find to CMAKE to get CMAKE to tell you which location(s) things were found!
+### Debugging
+Pass ``--debug-find`` as a command line option to CMAKE to get it to write out which locations it searched for.
 
 ### find_module
 The CMAKE pkg-config module is not the only way to find libraries though. Actually, from what I have read, I think it is discouraged since not everything comes with a .pc file.
