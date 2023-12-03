@@ -51,10 +51,17 @@ Anyway, issues arise when libfoo also exists on your BUILD machine. You might ha
 - /usr/include/foo.h
 - /usr/share/pkgconfig/foo.pc
 
-pkg-config will implicitly search in a list of default locations on your BUILD machine and when cross-compiling for AMIGA we do *not* want this to happen. It causes endless confusion. The solution is to set "CMAKE_FIND_ROOT_PATH" to the location of the directory containing the various .pc files. See section below about getting CMAKE to write out which paths it is searching for.
+pkg-config will implicitly search in a list of default locations on your BUILD machine and when cross-compiling for AMIGA we do *not* want this to happen. It causes endless confusion. The solution is to set *CMAKE_FIND_ROOT_PATH* to the location of the directory containing the various .pc files. See section below about getting CMAKE to write out which paths it is searching for. This forces CMAKE to use the semi-colon separated list for both *find-package* and *find-library*; notice that this does not have an effect on finding binaries! This is useful though, since even during a cross compilation, tools such as SED etc are sometimes needed and there is nothing wrong with using SED from the build machine.
+
+Also realise that the variables *CMAKE_FIND_ROOT_PATH_MODE_PROGRAM*, *CMAKE_FIND_ROOT_PATH_MODE_LIBRARY*, *CMAKE_FIND_ROOT_PATH_MODE_INCLUDE* and *CMAKE_FIND_ROOT_PATH_MODE_PACKAGE* determine whether the value in CMAKE_FIND_ROOT_PATH should be used *find-program*, *find-library*, *find-find* and *find-package* are used.
+
+TODO: Figure out why CMAKE_FIND_ROOT_PATH is being suffixed with nonsense things like: /home/,/usr/include etc. For instance: "/home/rjd/projects/adtools_be/bin/../ppc-amigaos/SDK/local/newlib/bin/(lib)SDL2main(\.so|\.a)" is one of the locations searched for SDL2Main, so it takes the ROOT_PATH and appends a bunch of default paths. But.. Why does it not just simply append /lib/(lib)SDL2main(\.so|\.a)?
 
 ### Debugging
+## Command line
 Pass ``--debug-find`` as a command line option to CMAKE to get it to write out which locations it searched for.
+## Using "printf"
+You can also use ``message( FATAL_ERROR "You can't do that" )`` to print out something and stop at that point.
 
 ### find_module
 The CMAKE pkg-config module is not the only way to find libraries though. Actually, from what I have read, I think it is discouraged since not everything comes with a .pc file.

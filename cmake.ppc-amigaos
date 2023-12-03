@@ -13,10 +13,19 @@
 # cmake --toolchain=/loc/to/cmake.ppc-amigaos
 
 if (NOT DEFINED CACHE{C_LIB})
-message ( "C_LIB was not defined. Assuming newlib" )
-set (C_LIB newlib CACHE STRING "The C-library implementation")
+  message ( "C_LIB was not defined. Assuming newlib" )
+  set (C_LIB newlib CACHE STRING "The C-library implementation")
 else ()
-message ( "C_LIB was set to ${C_LIB}")
+  message ( "C_LIB was set to ${C_LIB}")
+endif ()
+
+if (NOT DEFINED CACHE{XGCC_BIN})
+  #message ("XGCC_BIN was not defined. Assuming /gcc/bin/ is the location containing the CROSS COMPILERS")
+#  set (XGCC_BIN /gcc/bin/ CACHE STRING "The bin directory containing the CROSS COMPILERS")
+
+  # RJD: Personal:
+  message ("XGCC_BIN was not set. Setting it to: /home/rjd/projects/adtools_be/bin/")
+  set (XGCC_BIN /home/rjd/projects/adtools_be/bin/ CACHE STRING "The bin directory containing the CROSS COMPILERS")
 endif ()
 
 # Establish our System
@@ -25,22 +34,10 @@ SET(CMAKE_SYSTEM_VERSION 4)
 SET(CMAKE_SYSTEM_PROCESSOR "powerpc")
 SET(CMAKE_COMMAND /usr/bin/cmake)
 
-### You should always set something like:
-# export PKG_CONFIG_LIBDIR=/home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/${C_LIB}/lib/pkgconfig/
-# So that CMAKE does not invoke pkg-config which searches in your BUILD machine's default directories!
-# We ONLY want to use any PC files that are in our Amiga's SDK location!
-#
-# TODO: Can you just write (in this toolchain file) set(ENV{PKG_CONFIG_LIBDIR} "") instead of exporting or setting during invocation of CMAKE
-# This is used to search for .cmake modules files IN ADDTION to the default CMAKE locations:
-list(APPEND CMAKE_MODULE_PATH /home/rjd/projects/adtools_be/ppc-amigaos/SDK/local/${C_LIB}/)
-# TODO : Update this so that .cmake modules are NEVER taken from the BUILD machine. I.e. that default paths are removed!
-# A useful cmake variable which can be used downstream to check if we are using THIS toolchain
 SET(AMIGAOS4 1)
 
-SET(SDK /your/sdk/path)
-SET(XGCC_BIN /home/USER/projects/adtools_be/bin)
-SET(C_LIB newlib)
-
+SET(XGCC_BIN /home/rjd/projects/adtools_be/bin/)
+SET(SDK ${XGCC_BIN}/../ppc-amigaos/SDK/)
 SET_PROPERTY(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
 
 # specify the cross compiler
@@ -58,21 +55,18 @@ SET(CMAKE_MODULE_LINKER_FLAGS -shared)
 SET(CMAKE_SHARED_LINKER_FLAGS -shared)
 
 # Apparently, this variable is to tell CMAKE to use "alternative" roots to find filesystem items with find_package().
-#
-# TODO: Come back and test this!
-SET(CMAKE_FIND_ROOT_PATH  ${SDK}local/${C_LIB})
+SET(CMAKE_FIND_ROOT_PATH  ${SDK}local/${C_LIB}/)
 
 # search for programs in the build host directories
 #
 # Probably because we want to use the BUILD machine's PROGRAMS, just not its source files/libraries etc. For example, searching for pkg-config - we want to use the BUILD machine's pkg-config.
-SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
 # for libraries and headers in the target directories
 #
-# It makes sense. We only want to search for libraries and include files in our HOST machine; i.e. the SDK machine that we are build for!
-#
-# It could be that the issues I was having were ONLY with pkg-config, since the pkg-config MODULE does not seem to listen to this variable. Hence, we still probably need to export PKG_CONFIG_LIBDIR to be something else AS WELL as these:
+# It makes sense. We only want to search for libraries, include files and packages in our HOST machine; i.e. the SDK machine that we are build for!
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
 # when building, don't use the install RPATH already
 # (but later on when installing)
@@ -90,7 +84,7 @@ SET(CMAKE_C_IMPLICIT_LINK_LIBRARIES "stdc++")
 #ADD_LIBRARY(imp_stdc STATIC IMPORTED)
 # point the imported target at the real file
 #set_property(TARGET imp_stdc PROPERTY
-#	IMPORTED_LOCATION /home/USER/projects/adtools_be/local/amiga/ppc-amigaos/lib/${C_LIB}/libsdc++.a)
+#	IMPORTED_LOCATION /home/${USER}/projects/adtools_be/local/amiga/ppc-amigaos/lib/${C_LIB}/libsdc++.a)
 
 #SET( EXTRA_LIBS libgcc_eh.a )
 #SET( LIBS ${LIBS} libgcc_eh.a )
@@ -99,6 +93,6 @@ SET(CMAKE_C_IMPLICIT_LINK_LIBRARIES "stdc++")
 #ADD_LIBRARY(imp_gcc_eh STATIC IMPORTED)
 # point the imported target at the real file
 #set_property(TARGET imp_gcc_eh PROPERTY
-#	IMPORTED_LOCATION /home/USER/projects/adtools_be/local/amiga/lib/gcc/ppc-amigaos/4.9.1/libgcc_eh.a)
+#	IMPORTED_LOCATION /home/${USER}/projects/adtools_be/local/amiga/lib/gcc/ppc-amigaos/4.9.1/libgcc_eh.a)
 
 ### list(APPEND CMAKE_MODULE_PATH ${SDK}/local/lib)
