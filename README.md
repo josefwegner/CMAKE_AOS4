@@ -14,7 +14,7 @@ I also find it frustrating how every educational video you see of CMAKE is not b
 ### pkg-config
 It seems that CMAKE has different methods of retrieving packages. One of the common CMAKE modules is named pkg-config. Under the hood, it uses... *pkg-config*, of course. I have a gripe with pkg-config to begin with, since not every package is supplied with a .pc file - especially those packages uploaded to OS4Depot.net.
 
-In any case, we must ensure that CMAKE/pkg-config knows not to search for .pc files belonging to the BUILD machine! We only want .pc files to be searched within the relevant SDK directory used on the BUILD machine. For instance, when you install a library from OS4Depot.net, it may very well comes with a .pc file. When you install the library into your BUILD machines SDK location, the library, its headers and the .pc file end up installed. Fine. As an example, you may left with something like:
+In any case, we must ensure that CMAKE/pkg-config knows not to search for .pc files belonging to the BUILD machine! We only want .pc files to be searched within the relevant SDK directory used on the BUILD machine. For instance, when you install a library from OS4Depot.net, it may come with a .pc file. When you install the library into your BUILD machines SDK location, the library, its headers and the .pc file end up installed. Fine. As an example, you may left with something like:
 
 - /sdk/local/newlib/lib/libfoo.a
 - /sdk/local/newlib/lib/pkgconfig/foo.pc
