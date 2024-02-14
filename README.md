@@ -111,3 +111,10 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -athread=native")
 ```
+
+## Some Nasty Hacks (that have a better method?)
+### Forcefully adding libraries at the END
+```
+set(CMAKE_C_STANDARD_LIBRARIES -lpthread)
+set(CMAKE_CXX_STANDARD_LIBRARIES -lpthread)
+```
